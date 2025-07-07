@@ -22,9 +22,9 @@ const ChatBot = () => {
   useEffect(() => {
     const currentChat = chatSessions[currentChatId];
     if (currentChat && currentChat.title) {
-      document.title = `${currentChat.title} - MOSAIC Chat`;
+      document.title = `${currentChat.title} - NESTLE-IN`;
     } else {
-      document.title = 'MOSAIC Chat';
+      document.title = 'NESTLE-IN';
     }
   }, [currentChatId, chatSessions]);
 
@@ -482,14 +482,14 @@ const ChatBot = () => {
 
   if (!isInitialized || !isUserIdReady) {
     return (
-      <div className="flex h-screen w-screen bg-gray-900 fixed inset-0 items-center justify-center">
-        <div className="text-white text-xl">Loading MOSAIC Chat...</div>
+      <div className="flex h-screen w-screen bg-gradient-to-br from-blue-100 via-green-100 to-purple-100 fixed inset-0 items-center justify-center">
+        <div className="text-gray-800 text-xl font-semibold">Loading NESTLE-IN Chat...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen w-screen bg-gray-900 fixed inset-0 relative">
+    <div className="flex h-screen w-screen bg-gradient-to-br from-blue-100 via-green-100 to-purple-100 fixed inset-0 relative">
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40" />
@@ -497,17 +497,17 @@ const ChatBot = () => {
 
       {/* Sidebar */}
       <div className={`
-        sidebar-container bg-gray-800 border-r border-gray-700 flex flex-col transition-all duration-300 z-50
+        sidebar-container bg-white/80 backdrop-blur-sm border-r border-gray-200 flex flex-col transition-all duration-300 z-50 shadow-lg
         ${isMobile 
           ? `fixed inset-y-0 left-0 w-80 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} shadow-xl`
           : `relative ${sidebarCollapsed ? 'w-0' : 'w-80'} overflow-hidden`
         }
       `}>
         {/* New Chat Button */}
-        <div className="p-4 border-b border-gray-700 flex-shrink-0">
+        <div className="p-4 border-b border-gray-200 flex-shrink-0">
           <button
             onClick={createNewChat}
-            className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors touch-manipulation"
+            className="w-full flex items-center justify-center space-x-2 bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors touch-manipulation shadow-md"
           >
             <Plus className="w-5 h-5" />
             <span className="font-medium">New Chat</span>
@@ -525,19 +525,19 @@ const ChatBot = () => {
                     key={chat.id}
                     className={`group relative p-4 rounded-lg cursor-pointer transition-all duration-200 touch-manipulation ${
                       currentChatId === chat.id
-                        ? 'bg-gray-700 border border-gray-600 shadow-sm'
-                        : 'hover:bg-gray-700 active:bg-gray-600'
+                        ? 'bg-green-50 border border-green-200 shadow-sm'
+                        : 'hover:bg-gray-50 active:bg-gray-100'
                     }`}
                     onClick={() => selectChat(chat.id)}
                   >
                     {editingChatId === chat.id ? (
                       <div className="editing-container flex items-center space-x-2">
-                        <MessageSquare className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                        <MessageSquare className="w-5 h-5 text-green-600 flex-shrink-0" />
                         <input
                           type="text"
                           value={editingTitle}
                           onChange={(e) => setEditingTitle(e.target.value)}
-                          className="flex-1 bg-gray-600 text-white px-3 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-0"
+                          className="flex-1 bg-white text-gray-900 px-3 py-2 rounded text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent min-w-0"
                           onKeyPress={(e) => {
                             if (e.key === 'Enter') saveTitle(chat.id);
                             if (e.key === 'Escape') cancelEditing();
@@ -550,7 +550,7 @@ const ChatBot = () => {
                               e.stopPropagation();
                               saveTitle(chat.id);
                             }}
-                            className="text-green-400 hover:text-green-300 p-2 rounded-lg touch-manipulation"
+                            className="text-green-600 hover:text-green-700 p-2 rounded-lg touch-manipulation"
                           >
                             <Check className="w-4 h-4" />
                           </button>
@@ -559,7 +559,7 @@ const ChatBot = () => {
                               e.stopPropagation();
                               cancelEditing();
                             }}
-                            className="text-red-400 hover:text-red-300 p-2 rounded-lg touch-manipulation"
+                            className="text-red-500 hover:text-red-600 p-2 rounded-lg touch-manipulation"
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -567,12 +567,12 @@ const ChatBot = () => {
                       </div>
                     ) : (
                       <div className="flex items-center space-x-3">
-                        <MessageSquare className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                        <MessageSquare className="w-5 h-5 text-green-600 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <div className="text-white text-sm font-medium truncate mb-1">
+                          <div className="text-gray-900 text-sm font-medium truncate mb-1">
                             {chat.title}
                           </div>
-                          <div className="text-gray-400 text-xs">
+                          <div className="text-gray-500 text-xs">
                             {formatDate(chat.createdAt)}
                           </div>
                         </div>
@@ -585,7 +585,7 @@ const ChatBot = () => {
                               e.stopPropagation();
                               startEditingTitle(chat.id, chat.title);
                             }}
-                            className="text-gray-400 hover:text-white p-2 rounded-lg touch-manipulation"
+                            className="text-gray-500 hover:text-gray-700 p-2 rounded-lg touch-manipulation"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
@@ -594,7 +594,7 @@ const ChatBot = () => {
                               e.stopPropagation();
                               confirmDelete(chat.id);
                             }}
-                            className="text-gray-400 hover:text-red-400 p-2 rounded-lg touch-manipulation"
+                            className="text-gray-500 hover:text-red-500 p-2 rounded-lg touch-manipulation"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -605,7 +605,7 @@ const ChatBot = () => {
                 ))}
             </div>
           ) : (
-            <div className="text-center text-gray-400 mt-8">
+            <div className="text-center text-gray-500 mt-8">
               <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p className="text-sm">No chat history yet.</p>
               <p className="text-xs mt-2">Start a new conversation to begin!</p>
@@ -614,21 +614,21 @@ const ChatBot = () => {
         </div>
 
         {/* User Profile Bar */}
-        <div className="border-t border-gray-700 p-4 flex-shrink-0">
-          <div className="flex items-center space-x-3 cursor-pointer hover:bg-gray-700 p-3 rounded-lg transition-colors touch-manipulation">
+        <div className="border-t border-gray-200 p-4 flex-shrink-0">
+          <div className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors touch-manipulation">
             <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
               <User className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-white text-sm font-medium truncate">
+              <div className="text-gray-900 text-sm font-medium truncate">
                 John Doe
               </div>
-              <div className="text-gray-400 text-xs">
+              <div className="text-gray-500 text-xs">
                 john.doe@example.com
               </div>
             </div>
             <div className="flex-shrink-0">
-              <Settings className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
+              <Settings className="w-5 h-5 text-gray-500 hover:text-gray-700 transition-colors" />
             </div>
           </div>
         </div>
@@ -637,13 +637,13 @@ const ChatBot = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="delete-confirm-container bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4 border border-gray-600">
-            <h3 className="text-white text-lg font-semibold mb-4">Delete Chat</h3>
-            <p className="text-gray-300 mb-6">Are you sure you want to delete this chat? This action cannot be undone.</p>
+          <div className="delete-confirm-container bg-white rounded-lg p-6 max-w-sm w-full mx-4 border border-gray-200 shadow-xl">
+            <h3 className="text-gray-900 text-lg font-semibold mb-4">Delete Chat</h3>
+            <p className="text-gray-600 mb-6">Are you sure you want to delete this chat? This action cannot be undone.</p>
             <div className="flex space-x-3 justify-end">
               <button
                 onClick={cancelDelete}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors touch-manipulation"
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors touch-manipulation"
               >
                 Cancel
               </button>
@@ -661,20 +661,20 @@ const ChatBot = () => {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <div className="bg-gray-800 shadow-sm border-b border-gray-700 p-4 flex-shrink-0">
+        <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200 p-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 min-w-0">
-              <button
-                onClick={toggleSidebar}
-                className="sidebar-toggle p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors touch-manipulation"
-              >
-                {(isMobile && sidebarOpen) || (!isMobile && !sidebarCollapsed) ? 
-                  <ChevronLeft className="w-6 h-6" /> : 
-                  <Menu className="w-6 h-6" />
-                }
-              </button>
+<button
+  onClick={toggleSidebar}
+  className="sidebar-toggle p-2 text-green-600 hover:text-white bg-transparent hover:bg-green-600 rounded-lg transition-colors touch-manipulation border border-gray-200 focus:outline-none"
+>
+  {(isMobile && sidebarOpen) || (!isMobile && !sidebarCollapsed) ? 
+    <ChevronLeft className="w-6 h-6" /> : 
+    <Menu className="w-6 h-6" />
+  }
+</button>
               <div className="min-w-0">
-                <h1 className="text-xl font-semibold text-white truncate">
+                <h1 className="text-xl font-semibold text-gray-900 truncate">
                   {currentChat?.title || 'Welcome'}
                 </h1>
               </div>
@@ -683,10 +683,9 @@ const ChatBot = () => {
             {/* Company Branding */}
             <div className="flex items-center space-x-2 flex-shrink-0">
               <div className="text-right hidden sm:block">
-                <div className="text-lg font-bold text-white">MOSAIC</div>
-                <div className="text-sm text-gray-400">Chat</div>
+                <div className="text-lg font-bold text-green-600">NESTLE-IN</div>
+                <div className="text-sm text-gray-500">Chat</div>
               </div>
-                <img src="mosaic.png" alt="Mosaic Logo" className="w-12 h-12 object-contain"/>
             </div>
           </div>
         </div>
@@ -702,7 +701,7 @@ const ChatBot = () => {
                 >
                   <div className={`flex max-w-xs sm:max-w-md lg:max-w-lg xl:max-w-xl ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start space-x-2`}>
                     {/* Avatar */}
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.sender === 'user' ? 'bg-blue-600 ml-2' : 'bg-gray-600 mr-2'}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.sender === 'user' ? 'bg-green-600 ml-2' : 'bg-gray-600 mr-2'}`}>
                       {message.sender === 'user' ? (
                         <User className="w-4 h-4 text-white" />
                       ) : (
@@ -713,12 +712,12 @@ const ChatBot = () => {
                     {/* Message Bubble */}
                     <div className={`rounded-lg px-4 py-3 ${
                       message.sender === 'user'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-700 text-gray-100 shadow-sm border border-gray-600'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-white/80 backdrop-blur-sm text-gray-800 shadow-sm border border-gray-200'
                     }`}>
                       <p className="text-sm leading-relaxed">{message.text}</p>
                       <p className={`text-xs mt-2 ${
-                        message.sender === 'user' ? 'text-blue-200' : 'text-gray-400'
+                        message.sender === 'user' ? 'text-green-200' : 'text-gray-500'
                       }`}>
                         {formatTime(message.timestamp)}
                       </p>
@@ -727,9 +726,9 @@ const ChatBot = () => {
                 </div>
               ))
             ) : (
-              <div className="text-center text-gray-400 py-12">
+              <div className="text-center text-gray-600 py-12">
                 <Bot className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">Welcome to MOSAIC Chat!</h3>
+                <h3 className="text-lg font-semibold mb-2">Welcome to NESTLE-IN Chat!</h3>
                 <p className="text-sm mb-4 px-4">
                   {hasChats 
                     ? "Select a chat from the sidebar or start a new conversation below." 
@@ -745,18 +744,19 @@ const ChatBot = () => {
               </div>
             )}
 
-            {/* Loading indicator */}
+
+{/* Loading indicator */}
             {isLoading && (
               <div className="flex justify-start">
                 <div className="flex items-start space-x-2">
                   <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
-                  <div className="bg-gray-700 rounded-lg px-4 py-2 shadow-sm border border-gray-600">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-lg px-4 py-2 shadow-sm border border-gray-200">
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
                   </div>
                 </div>
@@ -767,7 +767,7 @@ const ChatBot = () => {
         </div>
 
         {/* Input Form */}
-        <div className="bg-gray-800 border-t border-gray-700 p-4">
+        <div className="bg-white/80 backdrop-blur-sm border-t border-gray-200 p-4">
           <div className="max-w-4xl mx-auto">
             <div className="flex space-x-2">
               <input
@@ -775,7 +775,7 @@ const ChatBot = () => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Type your message..."
-                className="flex-1 border border-gray-600 rounded-lg px-4 py-2 bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 disabled={isLoading}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
@@ -786,7 +786,7 @@ const ChatBot = () => {
               <button
                 onClick={handleSubmit}
                 disabled={isLoading || !inputValue.trim()}
-                className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Send className="w-5 h-5" />
               </button>
