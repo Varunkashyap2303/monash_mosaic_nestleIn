@@ -1,29 +1,36 @@
 import React, { useState } from "react";
-import {
-  CognitoUser,
-  AuthenticationDetails,
-} from "amazon-cognito-identity-js";
-import { userPool } from "../lib/aws/cognito";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login, isAuthenticated } = useAuth();
 
-  const handleLogin = (e) => {
+  // Redirect if already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/book');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     setMsg("🔄 Logging in...");
 
-    const user = new CognitoUser({ Username: email, Pool: userPool });
-    const authDetails = new AuthenticationDetails({
-      Username: email,
-      Password: password,
-    });
-
-    user.authenticateUser(authDetails, {
-      onSuccess: () => setMsg("✅ Logged in!"),
-      onFailure: (err) => setMsg("❌ " + err.message),
-    });
+    try {
+      await login(email, password);
+      setMsg("✅ Logged in successfully!");
+      navigate('/book');
+    } catch (err) {
+      setMsg("❌ " + err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -53,9 +60,10 @@ export default function LoginPage() {
           />
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition"
+            disabled={isLoading}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-2 rounded-lg font-medium transition"
           >
-            Sign In
+            {isLoading ? "Signing In..." : "Sign In"}
           </button>
         </form>
 
