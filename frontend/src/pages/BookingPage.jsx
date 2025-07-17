@@ -19,15 +19,19 @@ export default function BookingPage() {
   const handleBookingSubmit = (podId, timeSlot) => {
     bookPod(podId, timeSlot).then((res) => {
       if (res.success) {
-        localStorage.setItem('lastBooking', JSON.stringify({ podId, timeSlot }));
+        localStorage.setItem('lastBooking', JSON.stringify({ 
+          podId, 
+          timeSlot, 
+          pod: res.pod 
+        }));
         navigate('/confirmation');
       }
     });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4 py-8">
-      <div className="max-w-2xl w-full bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+    <div className="min-h-screen artistic-bg-3 flex items-center justify-center px-4 py-8">
+      <div className="max-w-2xl w-full bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-white/20">
         <h2 className="text-3xl font-bold text-blue-600 mb-6 text-center">Book a Sleeping Pod</h2>
         {!selectedPod ? (
           <PodList onSelectPod={handlePodSelect} />

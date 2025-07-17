@@ -1,0 +1,194 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Nestle-In Chatbot API with API Gateway and Lambda"
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    Description: Environment name (dev, staging, prod)
+
+  DynamoDBTableName:
+    Type: String
+    Default: nestle-in-chat-messages
+    Description: DynamoDB table name for storing chat messages
+
+Resources:
+  # DynamoDB Table for storing chat messages
+  ChatMessagesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref DynamoDBTableName
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: sessionId
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: SessionIndex
+          KeySchema:
+            - AttributeName: sessionId
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  # IAM Role for Lambda
+  ChatbotLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !GetAtt ChatMessagesTable.Arn
+                  - !Sub "${ChatMessagesTable.Arn}/index/*"
+
+  # Lambda Function
+  ChatbotFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "nestle-in-chatbot-${Environment}"
+      Runtime: nodejs18.x
+      Handler: chatbot-function.handler
+      Role: !GetAtt ChatbotLambdaRole.Arn
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => {
+            return {
+              statusCode: 200,
+              body: JSON.stringify({ message: "Hello from Lambda!" })
+            };
+          };
+      Environment:
+        Variables:
+          CHAT_TABLE_NAME: !Ref ChatMessagesTable
+          ENVIRONMENT: !Ref Environment
+      Timeout: 30
+      MemorySize: 256
+
+  # API Gateway
+  ChatbotApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub "nestle-in-chatbot-api-${Environment}"
+      Description: API Gateway for Nestle-In Chatbot
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  # API Gateway Resource
+  ChatResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ChatbotApi
+      ParentId: !GetAtt ChatbotApi.RootResourceId
+      PathPart: chat
+
+  # API Gateway Method for POST
+  ChatPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ChatbotApi
+      ResourceId: !Ref ChatResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ChatbotFunction.Arn}/invocations"
+      RequestParameters:
+        method.request.header.Content-Type: true
+
+  # API Gateway Method for OPTIONS (CORS)
+  ChatOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ChatbotApi
+      ResourceId: !Ref ChatResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type'"
+              method.response.header.Access-Control-Allow-Methods: "'POST, OPTIONS'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+
+  # Lambda Permission for API Gateway
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ChatbotFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ChatbotApi}/*/*"
+
+  # API Gateway Deployment
+  ChatbotDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ChatPostMethod
+      - ChatOptionsMethod
+    Properties:
+      RestApiId: !Ref ChatbotApi
+      StageName: !Ref Environment
+
+Outputs:
+  ApiGatewayUrl:
+    Description: API Gateway URL for the chatbot
+    Value: !Sub "https://${ChatbotApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/chat"
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiGatewayUrl"
+
+  DynamoDBTableName:
+    Description: DynamoDB table name for chat messages
+    Value: !Ref ChatMessagesTable
+    Export:
+      Name: !Sub "${AWS::StackName}-DynamoDBTableName"
+
+  LambdaFunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt ChatbotFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-LambdaFunctionArn"
